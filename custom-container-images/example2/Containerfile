@@ -1,0 +1,3 @@
+FROM localhost/imglocal:topolino
+ENV IMG-NAME paperino.png
+COPY paperino.png paperino.png
