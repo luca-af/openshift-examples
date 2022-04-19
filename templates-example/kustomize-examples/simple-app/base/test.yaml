@@ -1,0 +1,15 @@
+# Source: famouschart/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "test-test-connection"
+  labels:
+    app.kubernetes.io/name: simple-app
+    app.kubernetes.io/instance: simple-app
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['famousapp-famouschart:80']

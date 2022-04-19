@@ -1,0 +1,25 @@
+FROM ubi8/ubi 
+
+LABEL io.k8s.description="Simple gin app" \
+	io.k8s.display-name="GIT app server" \
+	io.openshift.expose-services="8080:http" \
+	io.openshift.tags="golang, gin"
+
+EXPOSE 8080
+RUN yum install golang git -y
+WORKDIR /opt
+ARG REPO=https://github.com/elroncio/simple-app-rht
+RUN git clone ${REPO}
+WORKDIR /opt/simple-app-rht
+RUN go build -o app main.go
+
+# Fix permissions for running as non-root
+RUN chgrp -R 0 /opt/simple-app-rht && \
+    chmod -R g=u /opt/simple-app-rht
+USER 1001
+
+# Volume for static route
+VOLUME /opt/simple-app-rht/static
+
+ENV GIN_MODE=debug
+ENTRYPOINT /opt/simple-app-rht/app

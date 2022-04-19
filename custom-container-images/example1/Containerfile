@@ -1,3 +1,5 @@
+# Build a custom images from a Containerfile
+
 FROM ubi8/ubi:latest
 
 LABEL maintainer=Luca
@@ -10,18 +12,24 @@ RUN sed -ri -e "/^Listen 80/c\Listen 8080" /etc/httpd/conf/httpd.conf && \
     chown -R apache:apache /run/httpd/ && \
     chown -R apache:apache /var/www/html
 
-ENV IMAGE-PNG topolino.png
+ENV PATH_TOPOLINO /var/www/html/topolino.png
+ARG IMAGE_PNG topolino.png
 EXPOSE 8080
 USER apache
-ADD https://www.extraordy.com/ /var/www/html/index.html
+ADD https://www.redhat.com /var/www/html/index.html
 WORKDIR /var/www/html
-COPY topolino.png topolino.png
+COPY topolino.png ${IMAGE_PNG}
 ENTRYPOINT ["httpd"]
 CMD ["-D", "FOREGROUND"]
+
+# Some __basic__ examples on how Entrypoint and CMD are used
 # sh ENTRYPOINT CMD
 # sh httpd -D FOREGROUND
+# ENTRYPOINT ["httpd", "-D", "FOREGROUND"]
 # sh ENTRYPOINT
+# CMD ["httpd", "-D", "FOREGROUND"]
 # sh CMD
 # podman run img NEW_CMD
+# sh ENTRYPOINT NEW_CMD
 # CMD ["mysql"]
 # podman run mysql bash

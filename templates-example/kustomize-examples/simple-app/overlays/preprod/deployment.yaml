@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-app
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        - name: simple-app
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+
