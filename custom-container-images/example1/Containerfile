@@ -20,8 +20,11 @@ ENTRYPOINT ["httpd"]
 CMD ["-D", "FOREGROUND"]
 # sh ENTRYPOINT CMD
 # sh httpd -D FOREGROUND
+# ENTRYPOINT ["httpd", "-D", "FOREGROUND"]
 # sh ENTRYPOINT
+# CMD ["httpd", "-D", "FOREGROUND"]
 # sh CMD
 # podman run img NEW_CMD
+# sh ENTRYPOINT NEW_CMD
 # CMD ["mysql"]
 # podman run mysql bash
