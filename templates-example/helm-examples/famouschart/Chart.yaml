@@ -26,6 +26,6 @@ appVersion: "1.16.0"
 
 dependencies:
 - name: mariadb
-  version: 9.3.11
+  version: 11.0.13 # Added because of the new MariaDB chart 
   repository: https://charts.bitnami.com/bitnami
 
