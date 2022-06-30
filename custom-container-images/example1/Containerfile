@@ -1,3 +1,5 @@
+# Build a custom images from a Containerfile
+
 FROM ubi8/ubi:latest
 
 LABEL maintainer=Luca
@@ -18,6 +20,8 @@ WORKDIR /var/www/html
 COPY topolino.png topolino.png
 ENTRYPOINT ["httpd"]
 CMD ["-D", "FOREGROUND"]
+
+# Some __basic__ examples on how Entrypoint and CMD are used
 # sh ENTRYPOINT CMD
 # sh httpd -D FOREGROUND
 # ENTRYPOINT ["httpd", "-D", "FOREGROUND"]

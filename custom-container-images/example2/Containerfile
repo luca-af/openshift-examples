@@ -1,3 +1,4 @@
-FROM localhost/imglocal:topolino
+# Use a custom image (from example1 directory) to build another custom image
+FROM localhost/example:topolino
 ENV IMG-NAME paperino.png
 COPY paperino.png paperino.png
