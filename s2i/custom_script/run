@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+GIN_MODE=release
+
+exec /opt/app-root/gobinary
