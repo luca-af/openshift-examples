@@ -1,0 +1,26 @@
+FROM ubi8/ubi 
+
+LABEL io.k8s.description="Simple gin app" \
+	io.k8s.display-name="GIT app server" \
+	io.openshift.expose-services="8080:http" \
+	io.openshift.tags="golang, gin"
+
+EXPOSE 8080
+
+RUN yum install golang -y
+
+COPY ./simple-app /simple-app
+
+
+WORKDIR /simple-app
+
+RUN go build -o app main.go
+
+RUN chgrp -R 0 /simple-app && \
+    chmod -R g=u /simple-app
+
+USER 1001
+
+ENV GIN_MODE=release
+
+ENTRYPOINT /simple-app/app
