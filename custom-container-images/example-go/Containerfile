@@ -7,20 +7,21 @@ LABEL io.k8s.description="Simple gin app" \
 
 EXPOSE 8080
 
-RUN yum install golang -y
+RUN yum install golang git -y
 
-COPY ./simple-app /simple-app
+ARG REPO=github.com/elroncio/openshift-examples
 
+RUN git clone ${REPO}
 
-WORKDIR /simple-app
+WORKDIR /openshift-examples/simple-app
 
 RUN go build -o app main.go
 
-RUN chgrp -R 0 /simple-app && \
-    chmod -R g=u /simple-app
+RUN chgrp -R 0 /openshift-examples/simple-app && \
+    chmod -R g=u /openshift-examples/simple-app
 
 USER 1001
 
-ENV GIN_MODE=release
+ENV GIN_MODE=debug
 
-ENTRYPOINT /simple-app/app
+ENTRYPOINT /openshift-examples/simple-app/app
