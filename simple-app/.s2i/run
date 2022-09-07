@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+GIN_MODE=release
+
+mkdir static
+echo Test > static/index.html
+
+exec /opt/app-root/gobinary
