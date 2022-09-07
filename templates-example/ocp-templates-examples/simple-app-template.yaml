@@ -1,0 +1,169 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: simple-app-template
+message: |-
+  The following service(s) have been created in your project: ${APP_SERVICE_NAME}.
+
+metadata:
+  annotations:
+    description: |-
+      A simple template to deploy a simple application.
+    openshift.io/display-name: SimpleApp
+    openshift.io/documentation-url: https://github.com/elroncio/openshift-examples
+    tags: golang, gin, simple-app
+objects:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: ${APP_SERVICE_NAME}
+  stringData:
+    GIN_MODE: ${TMPL_GIN_MODE}
+    FLAG_MSG: ${TMPL_FLAG_MSG}
+    MSG_CUSTOM: ${TMPL_MSG_CUSTOM}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${APP_SERVICE_NAME}
+  spec:
+    ports:
+    - name: http
+      port: 8080
+    selector:
+      name: ${APP_SERVICE_NAME}
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: ${APP_SERVICE_NAME}
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: ${VOLUME_CAPACITY}
+- apiVersion: v1
+  kind: Deployment
+  metadata:
+    annotations:
+      template.alpha.openshift.io/wait-for-ready: "true"
+    name: ${APP_SERVICE_NAME}
+  spec:
+    replicas: 1
+    selector:
+      name: ${APP_SERVICE_NAME}
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          name: ${APP_SERVICE_NAME}
+      spec:
+        containers:
+        - env:
+          - name: GIN_MODE
+            valueFrom:
+              secretKeyRef:
+                key: TMPL_GIN_MODE
+                name: ${APP_SERVICE_NAME}
+          - name: FLAG_MSG
+            valueFrom:
+              secretKeyRef:
+                key: TMPL_FLAG_MSG
+                name: ${APP_SERVICE_NAME}
+          - name: MSG_CUSTOM
+            valueFrom:
+              secretKeyRef:
+                key: TMPL_MSG_CUSTOM
+                name: ${APP_SERVICE_NAME}
+          image: 'quay.io/elroncio/simple-app:latest'
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+              - MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+          name: mysql
+          ports:
+          - containerPort: 8080
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+              - MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: ${MEMORY_LIMIT}
+          volumeMounts:
+          - mountPath: /opt/simple-app/static
+            name: ${APP_SERVICE_NAME}-data
+        volumes:
+        - name: ${DATABASE_SERVICE_NAME}-data
+          persistentVolumeClaim:
+            claimName: ${APP_SERVICE_NAME}
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - app
+        from:
+          kind: ImageStreamTag
+          name: app:latest
+          namespace: ${NAMESPACE}
+      type: ImageChange
+    - type: ConfigChange
+parameters:
+- description: Maximum amount of memory the container can use.
+  displayName: Memory Limit
+  name: MEMORY_LIMIT
+  required: true
+  value: 512Mi
+- description: The OpenShift Namespace where the ImageStream resides.
+  displayName: Namespace
+  name: NAMESPACE
+  value: openshift
+- description: The name of the OpenShift Service exposed for the application.
+  displayName: App Service Name
+  name: APP_SERVICE_NAME
+  required: true
+  value: simple-app
+- description: Username for MySQL user that will be used for accessing the database.
+  displayName: MySQL Connection Username
+  from: user[A-Z0-9]{3}
+  generate: expression
+  name: MYSQL_USER
+  required: true
+- description: Password for the MySQL connection user.
+  displayName: MySQL Connection Password
+  from: '[a-zA-Z0-9]{16}'
+  generate: expression
+  name: MYSQL_PASSWORD
+  required: true
+- description: Password for the MySQL root user.
+  displayName: MySQL root user Password
+  from: '[a-zA-Z0-9]{16}'
+  generate: expression
+  name: MYSQL_ROOT_PASSWORD
+  required: true
+- description: Name of the MySQL database accessed.
+  displayName: MySQL Database Name
+  name: MYSQL_DATABASE
+  required: true
+  value: sampledb
+- description: Volume space available for data, e.g. 512Mi, 2Gi.
+  displayName: Volume Capacity
+  name: VOLUME_CAPACITY
+  required: true
+  value: 1Gi
+- description: Version of MySQL image to be used (8.0-el7, 8.0-el8, or latest).
+  displayName: Version of MySQL Image
+  name: MYSQL_VERSION
+  required: true
+  value: 8.0-el8

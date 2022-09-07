@@ -6,22 +6,20 @@ LABEL io.k8s.description="Simple gin app" \
 	io.openshift.tags="golang, gin"
 
 EXPOSE 8080
-
 RUN yum install golang git -y
-
-ARG REPO=github.com/elroncio/openshift-examples
-
+WORKDIR /opt
+ARG REPO=github.com/elroncio/simple-app-rht
 RUN git clone ${REPO}
-
-WORKDIR /openshift-examples/simple-app
-
+WORKDIR /opt/simple-app
 RUN go build -o app main.go
 
-RUN chgrp -R 0 /openshift-examples/simple-app && \
-    chmod -R g=u /openshift-examples/simple-app
-
+# Fix permissions for running as non-root
+RUN chgrp -R 0 /opt/simple-app && \
+    chmod -R g=u /opt/simple-app
 USER 1001
 
-ENV GIN_MODE=debug
+# Volume for static route
+VOLUME /opt/simple-app/static
 
-ENTRYPOINT /openshift-examples/simple-app/app
+ENV GIN_MODE=debug
+ENTRYPOINT /opt/simple-app/app

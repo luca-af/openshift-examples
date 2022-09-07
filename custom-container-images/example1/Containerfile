@@ -12,12 +12,13 @@ RUN sed -ri -e "/^Listen 80/c\Listen 8080" /etc/httpd/conf/httpd.conf && \
     chown -R apache:apache /run/httpd/ && \
     chown -R apache:apache /var/www/html
 
-ENV IMAGE-PNG topolino.png
+ENV PATH_TOPOLINO /var/www/html/topolino.png
+ARG IMAGE_PNG topolino.png
 EXPOSE 8080
 USER apache
-ADD https://www.extraordy.com/ /var/www/html/index.html
+ADD https://www.redhat.com /var/www/html/index.html
 WORKDIR /var/www/html
-COPY topolino.png topolino.png
+COPY topolino.png ${IMAGE_PNG}
 ENTRYPOINT ["httpd"]
 CMD ["-D", "FOREGROUND"]
 

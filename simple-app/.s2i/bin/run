@@ -4,7 +4,6 @@ set -e
 
 GIN_MODE=release
 
-mkdir static
-echo Test > static/index.html
+MESSAGGIO_CUSTOMIZZATO="Messaggio customizzato"
 
 exec /opt/app-root/gobinary
