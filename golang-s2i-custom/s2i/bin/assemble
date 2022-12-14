@@ -1,0 +1,9 @@
+#!/bin/bash -e
+
+if [[ "$1" == "-h" ]]; then
+	exec /usr/libexec/s2i/usage
+fi
+
+echo "---> Copying source files to app directory"
+cp -Rf /tmp/src/. /opt/app-root/src/
+go build -o /opt/app-root/src/myapp /opt/app-root/src/main.go

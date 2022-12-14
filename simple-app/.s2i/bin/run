@@ -1,9 +1,0 @@
-#!/bin/bash
-
-set -e
-
-GIN_MODE=release
-
-MESSAGGIO_CUSTOMIZZATO="Messaggio customizzato"
-
-exec /opt/app-root/gobinary

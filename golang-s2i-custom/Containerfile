@@ -1,0 +1,38 @@
+FROM ubi8/ubi
+
+LABEL Component="golang" \
+      Name="s2i-golang-do288" \
+      Version="1.0" \
+      Release="1"
+
+LABEL io.k8s.description="Custom Golang S2I builder image" \
+      io.k8s.display-name="Custom Golang Builder Image" \
+      io.openshift.expose-services="8080:http" \
+      io.openshift.s2i.scripts-url="image:///usr/libexec/s2i"
+
+LABEL io.openshift.tags="builder, golang"
+
+
+
+RUN   yum install -y --nodocs --disableplugin=subscription-manager golang && \
+      yum clean all --disableplugin=subscription-manager -y 
+
+
+COPY ./s2i/bin/ /usr/libexec/s2i
+
+ENV APP_DIR /opt/app-root/src
+
+RUn mkdir -p $APP_DIR
+
+RUN chown -R 1001:1001 $APP_DIR && \
+    chgrp -R 0 $APP_DIR && \
+    chmod -R g=u $APP_DIR && \
+    chmod +x /usr/libexec/s2i/assemble /usr/libexec/s2i/run /usr/libexec/s2i/usage
+
+WORKDIR $APP_DIR
+# This default user is created in the rhel7 image
+USER 1001
+
+EXPOSE 8080
+
+CMD ["usage"]
